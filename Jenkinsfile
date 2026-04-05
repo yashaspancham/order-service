@@ -5,7 +5,7 @@ pipeline {
         AWS_REGION = "ap-south-1"
         ECR_REPO = "order-service"
         ECS_CLUSTER = "yashas-dev-cluster"
-        ECS_SERVICE = "yashas-order-service-service"
+        ECS_SERVICE = "yashas-order-service"
         TASK_DEF_NAME = "order-service"
         IMAGE_TAG = "${BUILD_NUMBER}"
         AWS_ACCOUNT_ID = "908831348175"
