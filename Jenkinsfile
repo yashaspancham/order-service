@@ -23,7 +23,6 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
-                echo building docker image
                 docker build -t $ECR_REPO:$IMAGE_TAG .
                 docker tag $ECR_REPO:$IMAGE_TAG $ECR_URI:$IMAGE_TAG
                 '''
