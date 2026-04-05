@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = "us-east-1"
-        ECR_REPO = "arun-backend-orderservice"
-        ECS_CLUSTER = "arun-dev-cluster"
-        ECS_SERVICE = "arun-order-service-service"
-        TASK_DEF_NAME = "arun-order-service"
+        AWS_REGION = "ap-south-1"
+        ECR_REPO = ""
+        // ECS_CLUSTER = "arun-dev-cluster"
+        // ECS_SERVICE = "arun-order-service-service"
+        // TASK_DEF_NAME = "arun-order-service"
         IMAGE_TAG = "${BUILD_NUMBER}"
-        AWS_ACCOUNT_ID = "526081839201"
+        AWS_ACCOUNT_ID = "908831348175"
         ECR_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
     }
 
@@ -23,6 +23,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
+                echo building docker image
                 docker build -t $ECR_REPO:$IMAGE_TAG .
                 docker tag $ECR_REPO:$IMAGE_TAG $ECR_URI:$IMAGE_TAG
                 '''
