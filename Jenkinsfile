@@ -6,7 +6,7 @@ pipeline {
         ECR_REPO = "order-service"
         ECS_CLUSTER = "yashas-dev-cluster"
         ECS_SERVICE = "yashas-order-service-service"
-        TASK_DEF_NAME = "yashas-order-service"
+        TASK_DEF_NAME = "order-service"
         IMAGE_TAG = "${BUILD_NUMBER}"
         AWS_ACCOUNT_ID = "908831348175"
         ECR_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
