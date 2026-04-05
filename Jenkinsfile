@@ -29,15 +29,16 @@ pipeline {
             }
         }
 
-          stage('Login to ECR') {
-              steps {
-                  withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {                                            
-                      sh '''
-                      aws ecr get-login-password --region $AWS_REGION | \                                                                                     
-                      docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com                                          
-                      '''
-                  }                                                                                                                                           
-              }  }
+        stage('Login to ECR') {
+            steps {
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+                    sh '''
+                    aws ecr get-login-password --region $AWS_REGION | \
+                    docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+                    '''
+                }
+            }
+        }
 
         stage('Push to ECR') {
             steps {
@@ -49,42 +50,46 @@ pipeline {
 
         stage('Register New Task Definition') {
             steps {
-                sh '''
-                aws ecs describe-task-definition \
-                  --task-definition $TASK_DEF_NAME \
-                  --query taskDefinition > task-def.json
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+                    sh '''
+                    aws ecs describe-task-definition \
+                      --task-definition $TASK_DEF_NAME \
+                      --query taskDefinition > task-def.json
 
-                cat task-def.json | jq --arg IMAGE "$ECR_URI:$IMAGE_TAG" '
-                  .containerDefinitions[0].image = $IMAGE |
-                  del(
-                    .taskDefinitionArn,
-                    .revision,
-                    .status,
-                    .requiresAttributes,
-                    .compatibilities,
-                    .registeredAt,
-                    .registeredBy
-                  )' > new-task-def.json
+                    cat task-def.json | jq --arg IMAGE "$ECR_URI:$IMAGE_TAG" '
+                      .containerDefinitions[0].image = $IMAGE |
+                      del(
+                        .taskDefinitionArn,
+                        .revision,
+                        .status,
+                        .requiresAttributes,
+                        .compatibilities,
+                        .registeredAt,
+                        .registeredBy
+                      )' > new-task-def.json
 
-                aws ecs register-task-definition \
-                  --cli-input-json file://new-task-def.json
-                '''
+                    aws ecs register-task-definition \
+                      --cli-input-json file://new-task-def.json
+                    '''
+                }
             }
         }
 
         stage('Deploy to ECS') {
             steps {
-                sh '''
-                aws ecs update-service \
-                  --cluster $ECS_CLUSTER \
-                  --service $ECS_SERVICE \
-                  --task-definition $TASK_DEF_NAME \
-                  --region $AWS_REGION
+                withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-creds']]) {
+                    sh '''
+                    aws ecs update-service \
+                      --cluster $ECS_CLUSTER \
+                      --service $ECS_SERVICE \
+                      --task-definition $TASK_DEF_NAME \
+                      --region $AWS_REGION
 
-                aws ecs wait services-stable \
-                  --cluster $ECS_CLUSTER \
-                  --services $ECS_SERVICE
-                '''
+                    aws ecs wait services-stable \
+                      --cluster $ECS_CLUSTER \
+                      --services $ECS_SERVICE
+                    '''
+                }
             }
         }
     }
