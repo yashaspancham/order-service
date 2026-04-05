@@ -1,16 +1,15 @@
-const mysql = require("mysql2");
+const mysql = require('mysql2');
+require('dotenv').config();   // optional, but good practice
 
-// Create a connection pool
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD, // ✅ matches .env
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT
+const pool = mysql.createPool({
+  host: 'database-1.co3kus82asfr.us-east-1.rds.amazonaws.com',
+  user: 'admin',
+  password: '0pEaAr1PODRsddq2Ur0w',
+  database: 'orderdb',        // make sure this exists
+  port: 3306,
   waitForConnections: true,
   connectionLimit: 10,
-  queueLimit: 0,
+  queueLimit: 0
 });
 
-// Export the pool
-module.exports = { pool };
+module.exports = pool.promise();   // now db has .query(), .getConnection(), etc.
